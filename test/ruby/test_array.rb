@@ -3614,4 +3614,9 @@ class TestArraySubclass < TestArray
     assert_equal(Array, @cls[1,2][0,1].class) # embedded
     assert_equal(Array, @cls[*(1..100)][1..99].class) #not embedded
   end
+
+  def test_array_second
+    assert_equal([1,2,3].second, 2)
+  end
+
 end
