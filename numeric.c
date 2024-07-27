@@ -6596,6 +6596,26 @@ int_doublesub(VALUE self, VALUE num)
     return rb_int_minus(self, rb_int_mul(num, num));
 }
 
+static VALUE
+int_fibonacci(VALUE self)
+{
+    int count = FIX2INT(self);
+    if (count <= 0)
+    {
+        return INT2FIX(0);
+    }
+    int prev2Num = 0;
+    int prevNum = 1;
+    for (int i = 0; i < count; i++)
+    {
+        prev2Num = prevNum + prev2Num;
+        int temp = prev2Num;
+        prev2Num = prevNum;
+        prevNum = temp;
+    }
+    return INT2FIX(prevNum);
+}
+
 /*
  *  Document-class: ZeroDivisionError
  *
@@ -7019,6 +7039,7 @@ void Init_Numeric(void)
 
     rb_define_method(rb_cInteger, "sub", int_sub, 1);
     rb_define_method(rb_cInteger, "doublesub", int_doublesub, 1);
+    rb_define_method(rb_cInteger, "fibonacci", int_fibonacci, 0);
 }
 
 #undef rb_float_value
