@@ -6599,21 +6599,50 @@ int_doublesub(VALUE self, VALUE num)
 static VALUE
 int_fibonacci(VALUE self)
 {
-    int count = FIX2INT(self);
+    long count = 0;
+    if (FIXNUM_P(self))
+    {
+        count = FIX2INT(self);
+    }
+    else
+    {
+        count = rb_big2long(self);
+    }
     if (count <= 0)
     {
         return INT2FIX(0);
     }
-    int prev2Num = 0;
-    int prevNum = 1;
-    for (int i = 0; i < count; i++)
+
+    long prev2Num = 0;
+    long prevNum = 1;
+    for (long i = 1; i < count; i++)
     {
         prev2Num = prevNum + prev2Num;
-        int temp = prev2Num;
+        long temp = prev2Num;
         prev2Num = prevNum;
         prevNum = temp;
     }
-    return INT2FIX(prevNum);
+    return LONG2NUM(prevNum);
+}
+
+VALUE int_isPrime(VALUE self)
+{
+
+    if (rb_int_gt(INT2FIX(2), self) == Qtrue)
+    {
+        return Qfalse;
+    }
+
+    VALUE sqrtNum = rb_int_s_isqrt(self, self);
+
+    for (VALUE i = INT2FIX(2); rb_int_ge(sqrtNum, i) == Qtrue; i = rb_int_plus(i, INT2FIX(1)))
+    {
+        if (rb_int_equal(rb_int_modulo(self, i), INT2FIX(0)))
+        {
+            return Qfalse;
+        }
+    }
+    return Qtrue;
 }
 
 /*
@@ -7040,6 +7069,7 @@ void Init_Numeric(void)
     rb_define_method(rb_cInteger, "sub", int_sub, 1);
     rb_define_method(rb_cInteger, "doublesub", int_doublesub, 1);
     rb_define_method(rb_cInteger, "fibonacci", int_fibonacci, 0);
+    rb_define_method(rb_cInteger, "isPrime", int_isPrime, 0);
 }
 
 #undef rb_float_value

@@ -24,25 +24,27 @@ rb_cmp(VALUE x, VALUE y)
     return rb_funcallv(x, idCmp, 1, &y);
 }
 
-void
-rb_cmperr(VALUE x, VALUE y)
+void rb_cmperr(VALUE x, VALUE y)
 {
     VALUE classname;
 
-    if (SPECIAL_CONST_P(y) || BUILTIN_TYPE(y) == T_FLOAT) {
+    if (SPECIAL_CONST_P(y) || BUILTIN_TYPE(y) == T_FLOAT)
+    {
         classname = rb_inspect(y);
     }
-    else {
+    else
+    {
         classname = rb_obj_class(y);
     }
-    rb_raise(rb_eArgError, "comparison of %"PRIsVALUE" with %"PRIsVALUE" failed",
+    rb_raise(rb_eArgError, "comparison of %" PRIsVALUE " with %" PRIsVALUE " failed",
              rb_obj_class(x), classname);
 }
 
 static VALUE
 invcmp_recursive(VALUE x, VALUE y, int recursive)
 {
-    if (recursive) return Qnil;
+    if (recursive)
+        return Qnil;
     return rb_cmp(y, x);
 }
 
@@ -50,10 +52,12 @@ VALUE
 rb_invcmp(VALUE x, VALUE y)
 {
     VALUE invcmp = rb_exec_recursive(invcmp_recursive, x, y);
-    if (NIL_OR_UNDEF_P(invcmp)) {
+    if (NIL_OR_UNDEF_P(invcmp))
+    {
         return Qnil;
     }
-    else {
+    else
+    {
         int result = -rb_cmpint(invcmp, x, y);
         return INT2FIX(result);
     }
@@ -62,7 +66,8 @@ rb_invcmp(VALUE x, VALUE y)
 static VALUE
 cmp_eq_recursive(VALUE arg1, VALUE arg2, int recursive)
 {
-    if (recursive) return Qnil;
+    if (recursive)
+        return Qnil;
     return rb_cmp(arg1, arg2);
 }
 
@@ -79,11 +84,13 @@ static VALUE
 cmp_equal(VALUE x, VALUE y)
 {
     VALUE c;
-    if (x == y) return Qtrue;
+    if (x == y)
+        return Qtrue;
 
     c = rb_exec_recursive_paired_outer(cmp_eq_recursive, x, y, y);
 
-    if (NIL_P(c)) return Qfalse;
+    if (NIL_P(c))
+        return Qfalse;
     return RBOOL(rb_cmpint(c, x, y) == 0);
 }
 
@@ -221,31 +228,42 @@ cmp_between(VALUE x, VALUE min, VALUE max)
 static VALUE
 cmp_clamp(int argc, VALUE *argv, VALUE x)
 {
+    double count = 0;
     VALUE min, max;
     int c, excl = 0;
 
-    if (rb_scan_args(argc, argv, "11", &min, &max) == 1) {
+    if (rb_scan_args(argc, argv, "11", &min, &max) == 1)
+    {
         VALUE range = min;
-        if (!rb_range_values(range, &min, &max, &excl)) {
+        if (!rb_range_values(range, &min, &max, &excl))
+        {
             rb_raise(rb_eTypeError, "wrong argument type %s (expected Range)",
                      rb_builtin_class_name(range));
         }
-        if (!NIL_P(max)) {
-            if (excl) rb_raise(rb_eArgError, "cannot clamp with an exclusive range");
+        if (!NIL_P(max))
+        {
+            if (excl)
+                rb_raise(rb_eArgError, "cannot clamp with an exclusive range");
         }
     }
-    if (!NIL_P(min) && !NIL_P(max) && cmpint(min, max) > 0) {
+    if (!NIL_P(min) && !NIL_P(max) && cmpint(min, max) > 0)
+    {
         rb_raise(rb_eArgError, "min argument must be less than or equal to max argument");
     }
 
-    if (!NIL_P(min)) {
+    if (!NIL_P(min))
+    {
         c = cmpint(x, min);
-        if (c == 0) return x;
-        if (c < 0) return min;
+        if (c == 0)
+            return x;
+        if (c < 0)
+            return min;
     }
-    if (!NIL_P(max)) {
+    if (!NIL_P(max))
+    {
         c = cmpint(x, max);
-        if (c > 0) return max;
+        if (c > 0)
+            return max;
     }
     return x;
 }
@@ -309,8 +327,7 @@ cmp_clamp(int argc, VALUE *argv, VALUE x)
  *
  */
 
-void
-Init_Comparable(void)
+void Init_Comparable(void)
 {
     rb_mComparable = rb_define_module("Comparable");
     rb_define_method(rb_mComparable, "==", cmp_equal, 1);
