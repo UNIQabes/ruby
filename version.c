@@ -22,25 +22,25 @@
 #endif
 
 #ifdef RUBY_REVISION
-# if RUBY_PATCHLEVEL == -1
-#  ifndef RUBY_BRANCH_NAME
-#   define RUBY_BRANCH_NAME "master"
-#  endif
-#  define RUBY_REVISION_STR " "RUBY_BRANCH_NAME" "RUBY_REVISION
-# else
-#  define RUBY_REVISION_STR " revision "RUBY_REVISION
-# endif
+#if RUBY_PATCHLEVEL == -1
+#ifndef RUBY_BRANCH_NAME
+#define RUBY_BRANCH_NAME "master"
+#endif
+#define RUBY_REVISION_STR " " RUBY_BRANCH_NAME " " RUBY_REVISION
 #else
-# define RUBY_REVISION "HEAD"
-# define RUBY_REVISION_STR ""
+#define RUBY_REVISION_STR " revision " RUBY_REVISION
+#endif
+#else
+#define RUBY_REVISION "HEAD"
+#define RUBY_REVISION_STR ""
 #endif
 #if !defined RUBY_RELEASE_DATETIME || RUBY_PATCHLEVEL != -1
-# undef RUBY_RELEASE_DATETIME
-# define RUBY_RELEASE_DATETIME RUBY_RELEASE_DATE
+#undef RUBY_RELEASE_DATETIME
+#define RUBY_RELEASE_DATETIME RUBY_RELEASE_DATE
 #endif
 
 #define PRINT(type) puts(ruby_##type)
-#define MKSTR(type) rb_obj_freeze(rb_usascii_str_new_static(ruby_##type, sizeof(ruby_##type)-1))
+#define MKSTR(type) rb_obj_freeze(rb_usascii_str_new_static(ruby_##type, sizeof(ruby_##type) - 1))
 #define MKINT(name) INT2FIX(ruby_##name)
 
 const int ruby_api_version[] = {
@@ -49,11 +49,9 @@ const int ruby_api_version[] = {
     RUBY_API_VERSION_TEENY,
 };
 #define RUBY_VERSION \
-    STRINGIZE(RUBY_VERSION_MAJOR) "." \
-    STRINGIZE(RUBY_VERSION_MINOR) "." \
-    STRINGIZE(RUBY_VERSION_TEENY) ""
+    STRINGIZE(RUBY_VERSION_MAJOR) "." STRINGIZE(RUBY_VERSION_MINOR) "." STRINGIZE(RUBY_VERSION_TEENY) ""
 #ifndef RUBY_FULL_REVISION
-# define RUBY_FULL_REVISION RUBY_REVISION
+#define RUBY_FULL_REVISION RUBY_REVISION
 #endif
 #ifdef YJIT_SUPPORT
 #define YJIT_DESCRIPTION " +YJIT " STRINGIZE(YJIT_SUPPORT)
@@ -72,19 +70,19 @@ const char ruby_description[] =
 static const int ruby_description_opt_point =
     (int)(sizeof(ruby_description) - sizeof(" [" RUBY_PLATFORM "]"));
 
-const char ruby_copyright[] = "ruby - Copyright (C) "
-    RUBY_BIRTH_YEAR_STR "-" RUBY_RELEASE_YEAR_STR " "
-    RUBY_AUTHOR;
+const char ruby_copyright[] = "ruby - Copyright (C) " RUBY_BIRTH_YEAR_STR "-" RUBY_RELEASE_YEAR_STR " " RUBY_AUTHOR;
 const char ruby_engine[] = "ruby";
 
 // Might change after initialization
 const char *rb_dynamic_description = ruby_description;
 
 /*! Defines platform-depended Ruby-level constants */
-void
-Init_version(void)
+void Init_version(void)
 {
-    enum {ruby_patchlevel = RUBY_PATCHLEVEL};
+    enum
+    {
+        ruby_patchlevel = RUBY_PATCHLEVEL
+    };
     VALUE version = MKSTR(version);
     VALUE ruby_engine_name = MKSTR(engine);
     // MKSTR macro is a marker for fake.rb
@@ -141,17 +139,12 @@ Init_version(void)
 
 int ruby_mn_threads_enabled;
 
-bool * rb_ruby_prism_ptr(void);
+bool *rb_ruby_prism_ptr(void);
 
 static void
 define_ruby_description(const char *const jit_opt)
 {
-    static char desc[
-        sizeof(ruby_description)
-        + rb_strlen_lit(YJIT_DESCRIPTION)
-        + rb_strlen_lit(" +MN")
-        + rb_strlen_lit(" +PRISM")
-    ];
+    static char desc[sizeof(ruby_description) + rb_strlen_lit(YJIT_DESCRIPTION) + rb_strlen_lit(" +MN") + rb_strlen_lit(" +PRISM")];
 
     const char *const threads_opt = ruby_mn_threads_enabled ? " +MN" : "";
     const char *const parser_opt = (*rb_ruby_prism_ptr()) ? " +PRISM" : "";
@@ -177,25 +170,21 @@ define_ruby_description(const char *const jit_opt)
     rb_define_global_const("RUBY_DESCRIPTION", /* MKSTR(description) */ description);
 }
 
-void
-Init_ruby_description(ruby_cmdline_options_t *opt)
+void Init_ruby_description(ruby_cmdline_options_t *opt)
 {
     const char *const jit_opt =
-        RJIT_OPTS_ON ? " +RJIT" :
-        YJIT_OPTS_ON ? YJIT_DESCRIPTION :
-        "";
+        RJIT_OPTS_ON ? " +RJIT" : YJIT_OPTS_ON ? YJIT_DESCRIPTION
+                                               : "";
     define_ruby_description(jit_opt);
 }
 
-void
-ruby_set_yjit_description(void)
+void ruby_set_yjit_description(void)
 {
     rb_const_remove(rb_cObject, rb_intern("RUBY_DESCRIPTION"));
     define_ruby_description(YJIT_DESCRIPTION);
 }
 
-void
-ruby_show_version(void)
+void ruby_show_version(void)
 {
     puts(rb_dynamic_description);
 
@@ -203,13 +192,14 @@ ruby_show_version(void)
     fputs("last_commit=" RUBY_LAST_COMMIT_TITLE, stdout);
 #endif
 #ifdef HAVE_MALLOC_CONF
-    if (malloc_conf) printf("malloc_conf=%s\n", malloc_conf);
+    if (malloc_conf)
+        printf("malloc_conf=%s\n", malloc_conf);
 #endif
+    printf("ruby hack simasu\n");
     fflush(stdout);
 }
 
-void
-ruby_show_copyright(void)
+void ruby_show_copyright(void)
 {
     PRINT(copyright);
     fflush(stdout);
