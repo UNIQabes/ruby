@@ -6590,6 +6590,12 @@ int_sub(VALUE self, VALUE num)
     return rb_int_minus(self, num);
 }
 
+static VALUE
+int_doublesub(VALUE self, VALUE num)
+{
+    return rb_int_minus(self, rb_int_mul(num, num));
+}
+
 /*
  *  Document-class: ZeroDivisionError
  *
@@ -7012,6 +7018,7 @@ void Init_Numeric(void)
     rb_define_method(rb_cFloat, "prev_float", flo_prev_float, 0);
 
     rb_define_method(rb_cInteger, "sub", int_sub, 1);
+    rb_define_method(rb_cInteger, "doublesub", int_doublesub, 1);
 }
 
 #undef rb_float_value
